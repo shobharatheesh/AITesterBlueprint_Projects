@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B.L.A.S.T. Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Fira+Code&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2">
+    <!-- Marked for Markdown Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ B.L.A.S.T. Test Generator</h1>
+            <div id="status" style="font-size: 0.8rem; color: #00ff88;">● System Online</div>
+        </header>
+
+        <div class="chat-area" id="chat-box">
+            <div class="message bot">
+                <div class="content">
+                    Hello! I am your <strong>QA Automation Pilot</strong>.<br>
+                    Paste your code snippet or explain a test scenario, and I will generate deterministic `pytest` cases
+                    using the local `gemma3:1b` model.
+                </div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <textarea id="user-input" placeholder="Paste python function or describe test needs..."></textarea>
+            <button onclick="sendMessage()">Generate</button>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // User Message
+            appendMessage('user', text);
+            userInput.value = '';
+
+            // Loading Indicator
+            const loadingId = appendLoading();
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: text })
+                });
+
+                const data = await response.json();
+
+                // Remove Loading
+                document.getElementById(loadingId).remove();
+
+                if (data.status === 'success') {
+                    // Try to extract JSON from response
+                    // Try to extract JSON using Regex (More robust for small models)
+                    let cleanJson = data.data;
+                    const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) {
+                        cleanJson = jsonMatch[0];
+                    }
+
+                    try {
+                        const parsed = JSON.parse(cleanJson);
+                        if (parsed.test_cases) {
+                            let html = `
+                            <div style="overflow-x: auto; background: #1e1e1e; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+                                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                                    <thead>
+                                        <tr style="background: rgba(124, 77, 255, 0.2); color: #fff;">
+                                            <th style="padding: 12px 15px; border-bottom: 2px solid #333;">ID</th>
+                                            <th style="padding: 12px 15px; border-bottom: 2px solid #333;">Type</th>
+                                            <th style="padding: 12px 15px; border-bottom: 2px solid #333;">Title</th>
+                                            <th style="padding: 12px 15px; border-bottom: 2px solid #333;">Preconditions</th>
+                                            <th style="padding: 12px 15px; border-bottom: 2px solid #333;">Steps</th>
+                                            <th style="padding: 12px 15px; border-bottom: 2px solid #333;">Expected Result</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+
+                            parsed.test_cases.forEach(tc => {
+                                const typeColor = (tc.type || 'Positive').toLowerCase() === 'negative' ? '#ff5252' : '#00e676';
+                                html += `
+                                    <tr style="border-bottom: 1px solid #333; transition: background 0.2s;">
+                                        <td style="padding: 12px 15px; font-family: 'Fira Code', monospace; color: #888;">${tc.id}</td>
+                                        <td style="padding: 12px 15px;">
+                                            <span style="color: ${typeColor}; border: 1px solid ${typeColor}44; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; font-weight: 600;">
+                                                ${(tc.type || 'TEST').toUpperCase()}
+                                            </span>
+                                        </td>
+                                        <td style="padding: 12px 15px; color: #fff; font-weight: 600;">${tc.title}</td>
+                                        <td style="padding: 12px 15px; color: #ccc;">${tc.preconditions || '-'}</td>
+                                        <td style="padding: 12px 15px; color: #ccc;">
+                                            <ol style="margin: 0; padding-left: 15px;">
+                                                ${tc.steps.map(s => `<li>${s}</li>`).join('')}
+                                            </ol>
+                                        </td>
+                                        <td style="padding: 12px 15px; color: #e0e0e0;">${tc.expected_result}</td>
+                                    </tr>`;
+                            });
+
+                            html += `</tbody></table></div>`;
+                            appendMessage('bot', html, true);
+                        } else {
+                            // Schema mismatch
+                            appendMessage('bot', marked.parse(data.data), true);
+                        }
+                    } catch (e) {
+                        // Fallback if parsing fails
+                        console.error(e);
+                        appendMessage('bot', marked.parse(data.data), true);
+                    }
+                } else {
+                    appendMessage('bot', `<span style="color: #ff5252">Error: ${data.message}</span>`, true);
+                }
+
+            } catch (err) {
+                document.getElementById(loadingId).remove();
+                appendMessage('bot', `<span style="color: #ff5252">Connection Error: ${err.message}</span>`, true);
+            }
+        }
+
+        function appendMessage(sender, content, isHtml = false) {
+            const div = document.createElement('div');
+            div.className = `message ${sender}`;
+
+            if (isHtml) {
+                div.innerHTML = content;
+            } else {
+                div.textContent = content; // Safe escape
+            }
+
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function appendLoading() {
+            const id = 'loading-' + Date.now();
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = 'message bot typing-indicator';
+            div.innerHTML = '<span></span><span></span><span></span>';
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            return id;
+        }
+
+        // Send on Ctrl+Enter
+        userInput.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+
+</html>
