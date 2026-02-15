@@ -1,34 +1,43 @@
 # Project Constitution: Test Plan AI Agents
 
 ## 🌟 North Star
-**Objective:** Automatically generate test cases from JIRA tickets, Confluence pages, or local files, and deliver them as JIRA sub-tasks, CSV exports, or Webhook payloads.
+**Objective:** Build a **Full-Stack Intelligent Test Plan Generator** that automates test plan creation by integrating **JIRA ticket data** with **LLM-powered analysis** (Groq/Ollama) using **customizable PDF templates**.
 
 ## 🔌 Integrations
 **Required:**
-- **JIRA:** Source (Issues) & Destination (Sub-tasks)
-- **LLM Provider:** [Pending User Confirmation - assuming OpenAI/Anthropic/Ollama standard format]
+- **JIRA:** Source (REST API v3) - Fetch Tickets.
+- **LLM Provider:**
+    - **Cloud:** Groq API (SDK)
+    - **Local:** Ollama (REST API)
+- **Storage:** SQLite (Settings/History) + File System (Templates)
+- **Frontend:** React + Vite + Tailwind (User Interface)
+- **Backend:** Python (FastAPI) (API Logic)
 
-**Optional/Flexible:**
-- **Confluence:** Source (Pages)
-- **Local Files:** Source (Markdown/Text)
-- **Slack:** Destination (Notifications - Optional)
-- **Notion:** Destination (Docs - Optional)
-- **Webhook:** Destination (Payload Delivery)
+**Deprecated/Optional (from initial draft):**
+- Slack/Notion (Secondary priority, focus on Web App first)
 
 ## 🧠 Data Schemas (The Law)
 
 ### 1. Unified Input Schema
-All sources (JIRA, Confluence, File) must be normalized to this structure before processing:
+All requests to the Agent must provide:
 ```json
 {
-  "source_type": "jira | confluence | file",
-  "source_id": "string (Key-123 | URL | filepath)",
-  "title": "string",
-  "raw_content": "string (The full requirement text)",
-  "metadata": {
+  "ticket_data": {
+    "key": "VWO-123",
+    "summary": "string",
+    "description": "string",
+    "acceptance_criteria": "string",
     "priority": "string",
-    "reporter": "string",
-    "labels": ["string"]
+    "status": "string",
+    "assignee": "string"
+  },
+  "template_data": {
+    "id": "string",
+    "sections": ["string (extracted from PDF)"]
+  },
+  "config": {
+    "provider": "groq | ollama",
+    "model": "string"
   }
 }
 ```
@@ -64,13 +73,14 @@ The LLM must output exactly this JSON structure:
 ```
 
 ## 📏 Behavioral Rules
-1.  **Tone:** Configurable (Default: Formal/Professional).
-2.  **Determinism:** Identical input must yield identical test cases (set Temperature to 0).
-3.  **Traceability:** Every test case must implicitly map back to the Source ID.
-4.  **"Do Not":**
-    *   Do not invent credentials or data not present in the source.
-    *   Do not fail silently; log all parsing errors.
-    *   Do not create JIRA sub-tasks without explicit confirmation flag (safety catch).
+1.  **Security First:** API Keys must NEVER be stored in Frontend `localStorage`. Use backend/OS secure storage.
+2.  **Error Handling & Resilience:**
+    - **Timeouts:** 30s for Groq, 120s for Ollama.
+    - **Retry Logic:** 3 attempts with exponential backoff.
+    - **Fallback:** Structured error messages if LLM fails.
+3.  **Determinism:** Identical input + Template must yield consistent structure.
+4.  **Aesthetic:** Clean, professional QA/Testing tone.
+5.  **Validation:** Sanitize JIRA IDs (Regex: `[A-Z]+-\d+`). Do not process malicious PDF uploads.
 
 ## Architectural Invariants
 1.  **Layered approach:** Source connectors -> Normalizer -> LLM Processor -> Destination adapters.
