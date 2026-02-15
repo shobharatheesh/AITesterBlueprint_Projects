@@ -1,0 +1,1 @@
+Error: API returned 500 - {"error":"llama runner process has terminated: exit status 2"}
