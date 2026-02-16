@@ -1,7 +1,7 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.endpoints import testplan
+from app.api.endpoints import testplan, config
 
 app = FastAPI(title="Intelligent Test Plan Agent")
 
@@ -15,6 +15,7 @@ app.add_middleware(
 )
 
 app.include_router(testplan.router, prefix="/api/testplan", tags=["testplan"])
+app.include_router(config.router, prefix="/api/config", tags=["config"])
 
 @app.get("/")
 def read_root():
