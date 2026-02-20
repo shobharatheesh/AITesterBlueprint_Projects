@@ -1,0 +1,23 @@
+# Node.js
+node_modules/
+dist/
+build/
+.env
+
+# Database
+backend/data/*.db
+backend/data/*.db-journal
+data/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Templates
+templates/active_template.pdf
+
+# IDE
+.vscode/
+.idea/
+.agent/
+.tmp/
