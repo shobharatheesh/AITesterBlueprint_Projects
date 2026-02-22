@@ -1,0 +1,15 @@
+/* index.css - minimal base reset (main styles are in App.css) */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #0a0b0f;
+}
+
+#root {
+  min-height: 100vh;
+}

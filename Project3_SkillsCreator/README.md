@@ -4,52 +4,103 @@ This project demonstrates the integration of agentic "skills" into the developme
 
 ## 🛠️ How it Works
 
-The project utilizes a modular "Skills" architecture. Skills are predefined sets of instructions and patterns that allow the AI agent (Antigravity) to perform specialized tasks with high precision.
+The project utilizes a modular "Skills" architecture. Skills are predefined sets of instructions and patterns that allow the AI agent (Antigravity) to review code, suggest improvements, and ensure best practices.
 
-### 🔄 Review Workflow
+### 🏗️ Architecture
+
+The system consists of three main components:
+1.  **User Code**: The source code (e.g., Playwright tests) that needs review or generation.
+2.  **Agentic Skills**: A repository of specialized skills located in `.agent/skills`, providing the AI with specific capabilities.
+3.  **Execution Engine**: The environment (Playwright, Node.js) where the code is executed and tested.
+
+#### 🔄 Review Workflow
 
 ```mermaid
 graph TD
-    A[User Code] --> B{Trigger /codex-review}
-    B --> C[Fetch codex-review SKILL.MD]
-    C --> D[Systematic Code Analysis]
-    D --> E[Identify Errors & Anti-patterns]
-    E --> F[Generate Optimized Code]
-    F --> G[Generate Auto-CHANGELOG]
-    G --> H[Final Push to GitHub]
+    A[User Code] -->|Trigger /codex-review| B(AI Agent)
+    B -->|Load Skill| C[.agent/skills/codex-review/SKILL.md]
+    C -->|Analyze| D{Code Analysis}
+    D -->|Refactor| E[Optimized Code]
+    D -->|Document| F[Auto-CHANGELOG]
+    E -->|Verify| G[Run Tests]
+    G -->|Commit| H[Push to GitHub]
 ```
 
 ## 🚀 Setup Instructions
 
-### 1. Repository Structure
-The skills repository is cloned into a special hidden directory to keep the workspace clean while remaining accessible to the agent.
+Follow these steps to set up the project locally.
+
+### 1. Prerequisites
+
+-   **Node.js**: Ensure you have Node.js installed (v14 or higher).
+-   **VS Code**: Recommended for the best development experience.
+-   **Git**: Required for version control.
+
+### 2. Clone the Repository
 
 ```bash
+git clone <your-repo-url>
+cd Project3_SkillsCreator
+```
+
+### 3. Install Dependencies
+
+Install the project dependencies, including Playwright:
+
+```bash
+npm install
+npx playwright install
+```
+
+### 4. Configure Agentic Skills
+
+The project relies on a collection of agentic skills. These should be cloned into the `.agent/skills` directory:
+
+```bash
+# Create the directory if it doesn't exist
+mkdir -p .agent/skills
+
+# Clone the skills repository
 git clone https://github.com/sickn33/antigravity-awesome-skills.git .agent/skills
 ```
 
-### 2. Skill Configuration
-The `codex-review` skill is located at:
-`.agent/skills/skills/codex-review/SKILL.md`
+> **Note:** If you already have the `.agent/skills` directory populated, you can skip this step.
 
-It contains instructions for:
-- Professional syntax checking.
-- Performance optimization.
-- Best practice enforcement (e.g., adding assertions to tests).
-- Automated changelog generation.
+## 🏃 Usage
 
-### 3. Usage
-Simply mention the skill or the directory path when asking for a review:
-> "@[.agent/skills/skills/codex-review] review this Playwright test"
+### Running Tests
 
-## 📈 Example: Selenium to Playwright Migration
-In this project, we successfully converted a legacy Java Selenium snippet into a modern, production-ready Playwright test:
+To run the Playwright tests used in this project:
 
-1. **Input:** Partial Java snippet with syntax errors and missing assertions.
-2. **Action:** Applied `codex-review` skill.
-3. **Output:** Clean JavaScript code with Regex assertions and optimized performance.
+```bash
+npx playwright test
+```
+
+To run a specific test file:
+
+```bash
+npx playwright test tests/google-search.spec.js
+```
+
+### Applying Skills
+
+To use the `codex-review` skill, simply mention the skill path or name when interacting with the AI agent:
+
+> "@[.agent/skills/skills/codex-review] review this test file and suggest improvements."
 
 ## 📁 Project Structure
-- `tests/`: Contains the optimized Playwright specifications.
-- `.agent/skills/`: Local database of 600+ agentic skills.
-- `.gitignore`: Configured to exclude heavy skill assets while tracking core logic.
+
+-   `tests/`: Contains the Playwright test specifications.
+-   `.agent/skills/`: Local database of agentic skills.
+-   `playwright.config.js`: Configuration for Playwright tests.
+-   `package.json`: Project dependencies and scripts.
+-   `README.md`: Project documentation.
+
+## 📈 Example: Selenium to Playwright Migration
+
+In this project, we successfully converted a legacy Java Selenium snippet into a modern, production-ready Playwright test:
+
+1.  **Input:** Partial Java snippet with syntax errors and missing assertions.
+2.  **Action:** Applied `codex-review` skill.
+3.  **Output:** Clean JavaScript code with Regex assertions and optimized performance.
+

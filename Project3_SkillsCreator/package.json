@@ -1,0 +1,21 @@
+{
+  "name": "project3-skills-creator",
+  "version": "1.0.0",
+  "description": "Skills Creator & Codex Review project demonstrating agentic skills integration.",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "codegen": "playwright codegen"
+  },
+  "keywords": [
+    "playwright",
+    "agentic",
+    "skills",
+    "testing"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.41.0"
+  }
+}

@@ -1,0 +1,74 @@
+🐞 JIRA BUG TICKET - READY TO COPY
+═══════════════════════════════════════════════════════════════
+
+PROJECT: AI_Blueprint123
+ISSUE TYPE: Bug
+
+-----------------------------------------------------------------
+SUMMARY:
+Login button not responding on VWO platform
+
+-----------------------------------------------------------------
+DESCRIPTION:
+The login button on the VWO sign-in page is not responding when 
+clicked. This prevents users from accessing their accounts.
+
+-----------------------------------------------------------------
+STEPS TO REPRODUCE:
+1. Navigate to the VWO login page
+2. Enter valid email address
+3. Enter valid password
+4. Click the "Sign In" button
+
+-----------------------------------------------------------------
+ACTUAL RESULT:
+Clicking the Sign In button does not trigger any action. The page 
+remains static and user is not logged in.
+
+-----------------------------------------------------------------
+EXPECTED RESULT:
+User should be successfully logged in and redirected to the VWO 
+dashboard.
+
+-----------------------------------------------------------------
+ENVIRONMENT:
+• App URL: https://app.vwo.com
+• Browser: Chrome
+• OS: Windows 11
+• Build Version: N/A
+
+-----------------------------------------------------------------
+CLASSIFICATION:
+• Module: Authentication
+• Feature: Login
+• Severity: Critical
+• Priority: P1
+
+-----------------------------------------------------------------
+ATTACHMENTS:
+Screenshot provided showing the VWO login page with the 
+non-responsive Sign In button.
+
+═══════════════════════════════════════════════════════════════
+
+HOW TO CREATE THIS IN JIRA:
+
+Option 1: Copy-Paste Method
+1. Go to https://your-domain.atlassian.net
+2. Click "Create" (top navigation)
+3. Select Project: AI_Blueprint123
+4. Select Issue Type: Bug
+5. Copy each section above into the corresponding field
+6. Upload the screenshot
+7. Click "Create"
+
+Option 2: Run the Script
+1. Open create-jira-issue.js in a text editor
+2. Replace YOUR_API_TOKEN_HERE with your actual API token
+3. Update the domain if needed
+4. Save the file
+5. Open terminal/command prompt
+6. Navigate to: cd d:\AITesterBlueprint\Project7_BugReporter\bug-reporter
+7. Run: node create-jira-issue.js
+
+═══════════════════════════════════════════════════════════════
